@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingBottom="16dp"
+    android:paddingEnd="10dp"
+    android:paddingRight="10dp">
+
+    <ImageView
+        android:layout_width="@dimen/picture_width"
+        android:layout_height="@dimen/picture_height"
+        android:id="@+id/cover"
+        android:layout_alignParentTop="false"
+        android:layout_alignParentStart="false"
+        android:layout_marginTop="10dp"
+        android:layout_marginStart="10dp"
+        android:layout_alignParentLeft="false"
+        android:layout_marginLeft="5dp" />
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/cover"
+        android:layout_toEndOf="@+id/cover"
+        android:weightSum="2"
+        android:layout_marginStart="10dp"
+        android:layout_above="@+id/article_published_time"
+        android:layout_toRightOf="@+id/cover"
+        android:layout_marginLeft="10dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:id="@+id/article_title"
+            android:textColor="@color/colorText"
+            android:gravity="center_vertical"
+            android:maxLines="3"
+            android:lines="3"
+            android:ellipsize="end"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:id="@+id/article_author"
+            android:textColor="@color/colorText"
+            android:gravity="center_vertical"
+            android:maxLines="3"
+            android:lines="3"
+            android:ellipsize="end"/>
+
+    </LinearLayout>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/article_published_time"
+        android:layout_alignBottom="@+id/cover"
+        android:layout_alignParentEnd="true"
+        android:textStyle="italic"
+        android:layout_alignParentRight="true" />
+
+</RelativeLayout>

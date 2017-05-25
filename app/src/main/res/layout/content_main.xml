@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#E6E6E6">
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/allArticles_list"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:clipToPadding="false" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/empty_view_text"
+        android:id="@+id/empty_view"
+        android:layout_centerVertical="true"
+        android:layout_centerHorizontal="true"
+        android:textAlignment="center"
+        android:textStyle="bold|italic"
+        android:textSize="@dimen/empty_view_text"
+        android:textIsSelectable="false"
+        android:visibility="gone" />
+
+</RelativeLayout>
