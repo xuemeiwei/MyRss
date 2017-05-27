@@ -16,20 +16,30 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import com.google.android.gms.auth.api.Auth;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.common.api.Status;
+
 import org.json.JSONArray;
-import org.json.JSONException;;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 
+;
+
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
     RecyclerView recyclerView;
     ArrayList<Article> articles;
     private SqlHelper database;
+    private GoogleApiClient mGoogleApiClient;
     private static final String TAG = "MainActivity";
+    ArticleAsyncTask articleAsyncTask;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         Log.d(TAG, "onCreate:");
@@ -39,6 +49,8 @@ public class MainActivity extends AppCompatActivity
         setSupportActionBar(toolbar);
 
         database = new SqlHelper(MainActivity.this);
+        recyclerView = (RecyclerView) findViewById(R.id.allArticles_list);;
+        articles = new ArrayList<>();
 
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -66,20 +78,30 @@ public class MainActivity extends AppCompatActivity
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
         return true;
+
     }
 
     @Override
     protected void onStart() {
+
         super.onStart();
-        recyclerView = (RecyclerView) findViewById(R.id.allArticles_list);;
-        articles = new ArrayList<>();
+
         URL articleSearchUrl = NetworkUtils.buildUrl();
-        ArticleAsyncTask articleAsyncTask= (ArticleAsyncTask) new ArticleAsyncTask().execute(articleSearchUrl);
+        articleAsyncTask= (ArticleAsyncTask) new ArticleAsyncTask().execute(articleSearchUrl);
 
         ArticleAdapter articleAdapter = new ArticleAdapter();
         articleAdapter.setData(articles);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(articleAdapter);
+
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestEmail()
+                .build();
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
+                .build();
+        mGoogleApiClient.connect();
+        Log.d(TAG, "onStart:!!!");
     }
 
     @Override
@@ -109,14 +131,25 @@ public class MainActivity extends AppCompatActivity
         } else if (id == R.id.fav) {
 
         } else if (id == R.id.sign_out) {
+            signOut();
             Intent goLogin = new Intent(getApplicationContext(),LoginActivity.class);
             startActivity(goLogin);
             finish();
-
         }
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+    private void signOut() {
+        Auth.GoogleSignInApi.signOut(mGoogleApiClient).setResultCallback(
+                new ResultCallback<Status>() {
+                    @Override
+                    public void onResult(Status status) {
+                        Toast.makeText(getApplicationContext(),"Logged Out",Toast.LENGTH_SHORT).show();
+                        Intent i=new Intent(getApplicationContext(),LoginActivity.class);
+                        startActivity(i);
+                    }
+                });
     }
     public class ArticleAsyncTask extends AsyncTask<URL, Void, String> {
         @Override
@@ -126,6 +159,7 @@ public class MainActivity extends AppCompatActivity
 
         @Override
         protected String doInBackground(URL... params) {
+            Log.d("ArticleAsyncTask", "doInBackground: !!!");
             URL searchUrl = params[0];
             String articleSearchResults = null;
             try {
@@ -138,7 +172,7 @@ public class MainActivity extends AppCompatActivity
 
         @Override
         protected void onPostExecute(String articleSearchResults) {
-            Log.d("ArticleAsyncTask", "onPostExecute:");
+            Log.d("ArticleAsyncTask", "onPostExecute: !!!");
             if (articleSearchResults != null && !articleSearchResults.equals("")) {
                 try {
                     JSONObject root = new JSONObject(articleSearchResults);
@@ -169,4 +203,5 @@ public class MainActivity extends AppCompatActivity
             }
         }
     }
+
 }
