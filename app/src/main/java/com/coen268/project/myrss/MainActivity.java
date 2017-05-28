@@ -1,15 +1,12 @@
 package com.coen268.project.myrss;
 
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
@@ -22,24 +19,17 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.common.api.Status;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.IOException;
-import java.net.URL;
-import java.util.ArrayList;
-
 ;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
-    RecyclerView recyclerView;
-    ArrayList<Article> articles;
+
+
     private SqlHelper database;
     private GoogleApiClient mGoogleApiClient;
     private static final String TAG = "MainActivity";
-    ArticleAsyncTask articleAsyncTask;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         Log.d(TAG, "onCreate:");
@@ -49,9 +39,6 @@ public class MainActivity extends AppCompatActivity
         setSupportActionBar(toolbar);
 
         database = new SqlHelper(MainActivity.this);
-        recyclerView = (RecyclerView) findViewById(R.id.allArticles_list);;
-        articles = new ArrayList<>();
-
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -85,14 +72,10 @@ public class MainActivity extends AppCompatActivity
     protected void onStart() {
 
         super.onStart();
-
-        URL articleSearchUrl = NetworkUtils.buildUrl();
-        articleAsyncTask= (ArticleAsyncTask) new ArticleAsyncTask().execute(articleSearchUrl);
-
-        ArticleAdapter articleAdapter = new ArticleAdapter();
-        articleAdapter.setData(articles);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        recyclerView.setAdapter(articleAdapter);
+        android.app.FragmentManager manager = getFragmentManager();
+        LattestFragment lattestFragment = new LattestFragment();
+        manager.beginTransaction().replace(R.id.contentLayout,
+                lattestFragment, lattestFragment.getTag()).commit();
 
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestEmail()
@@ -101,7 +84,6 @@ public class MainActivity extends AppCompatActivity
                 .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
                 .build();
         mGoogleApiClient.connect();
-        Log.d(TAG, "onStart:!!!");
     }
 
     @Override
@@ -125,6 +107,10 @@ public class MainActivity extends AppCompatActivity
 
         if (id == R.id.lattest) {
             Toast.makeText(this,"lattest",Toast.LENGTH_LONG).show();
+            android.app.FragmentManager manager = getFragmentManager();
+            LattestFragment lattestFragment = new LattestFragment();
+            manager.beginTransaction().replace(R.id.contentLayout,
+                    lattestFragment, lattestFragment.getTag()).commit();
 
         } else if (id == R.id.toRead) {
 
@@ -140,6 +126,7 @@ public class MainActivity extends AppCompatActivity
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
+
     private void signOut() {
         Auth.GoogleSignInApi.signOut(mGoogleApiClient).setResultCallback(
                 new ResultCallback<Status>() {
@@ -151,57 +138,7 @@ public class MainActivity extends AppCompatActivity
                     }
                 });
     }
-    public class ArticleAsyncTask extends AsyncTask<URL, Void, String> {
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-        }
 
-        @Override
-        protected String doInBackground(URL... params) {
-            Log.d("ArticleAsyncTask", "doInBackground: !!!");
-            URL searchUrl = params[0];
-            String articleSearchResults = null;
-            try {
-                articleSearchResults = NetworkUtils.getResponseFromHttpUrl(searchUrl);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            return articleSearchResults;
-        }
 
-        @Override
-        protected void onPostExecute(String articleSearchResults) {
-            Log.d("ArticleAsyncTask", "onPostExecute: !!!");
-            if (articleSearchResults != null && !articleSearchResults.equals("")) {
-                try {
-                    JSONObject root = new JSONObject(articleSearchResults);
-                    JSONArray articlesSearched = root.getJSONArray("articles");
-                    for (int i = 0; i < articlesSearched.length(); ++i) {
-                        JSONObject jsonArticle = articlesSearched.getJSONObject(i);
-
-                        String title = jsonArticle.getString("title");
-                        String author = jsonArticle.getString("author");
-                        String description = jsonArticle.getString("description");
-                        String url = jsonArticle.getString("url");
-                        String image = jsonArticle.getString("urlToImage");
-                        String publishedTime = jsonArticle.getString("publishedAt");
-
-                        Article searchedArticle = new Article();
-                        searchedArticle.setAuthor(author);
-                        searchedArticle.setDescription(description);
-                        searchedArticle.setTitle(title);
-                        searchedArticle.setImageLinks(image);
-                        searchedArticle.setUrl(url);
-                        searchedArticle.setPublishedTime(publishedTime);
-                        articles.add(searchedArticle);
-                    }
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-
-            }
-        }
-    }
 
 }

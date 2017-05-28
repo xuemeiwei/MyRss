@@ -22,7 +22,7 @@ public class SqlHelper extends SQLiteOpenHelper {
     private static final String TABLE_ARTICLE = "article";
     private static final String TABLE_LIBRARY = "library";
     private static final String TABLE_USER = "user_app";
-    private static final String KEY_AUTHOR= "author";
+    private static final String KEY_AUTHOR = "author";
     private static final String KEY_TITLE = "title";
     private static final String KEY_DESCRIPTION = "description";
     private static final String KEY_URL = "url";
@@ -44,25 +44,25 @@ public class SqlHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
 
-        String CREATE_ARTICLE_TABLE = "CREATE TABLE " + TABLE_ARTICLE  + " ( " +
-                KEY_TITLE + " TEXT PRIMARY KEY, "+
+        String CREATE_ARTICLE_TABLE = "CREATE TABLE " + TABLE_ARTICLE + " ( " +
+                KEY_TITLE + " TEXT PRIMARY KEY, " +
                 KEY_AUTHOR + " TEXT, " +
                 KEY_DESCRIPTION + " TEXT, " +
-                KEY_URL + " TEXT, "+
+                KEY_URL + " TEXT, " +
                 KEY_IMAGELINKS + " TEXT, " +
                 KEY_PUBLISHED_TIME + " TEXT)";
 
         String CREATE_LIBRARY_TABLE = "CREATE TABLE " + TABLE_LIBRARY + " ( " +
                 KEY_ARTICLE_TITLE + " TEXT PRIMARY KEY, " +
                 KEY_ID_USER + " TEXT, " +
-                KEY_IS_READ + " INTEGER, "+
+                KEY_IS_READ + " INTEGER, " +
                 KEY_IS_FAVORITE + " INTEGER, " +
-                "FOREIGN KEY( " + KEY_ARTICLE_TITLE + " ) REFERENCES " + TABLE_ARTICLE + " ( " + KEY_TITLE + "), "+
+                "FOREIGN KEY( " + KEY_ARTICLE_TITLE + " ) REFERENCES " + TABLE_ARTICLE + " ( " + KEY_TITLE + "), " +
                 "FOREIGN KEY( " + KEY_ID_USER + " ) REFERENCES " + TABLE_USER + " ( " + KEY_TOKEN_USER + "))";
 
         String CREATE_USER_TABLE = "CREATE TABLE " + TABLE_USER + " ( " +
                 "token TEXT PRIMARY KEY, " +
-                "name TEXT, "+
+                "name TEXT, " +
                 "mail TEXT)";
 
         db.execSQL(CREATE_ARTICLE_TABLE);
@@ -81,8 +81,8 @@ public class SqlHelper extends SQLiteOpenHelper {
         this.onCreate(db);
     }
 
-    public void addUser(GoogleSignInAccount userAccount){
-        Log.i(TAG,"add user");
+    public void addUser(GoogleSignInAccount userAccount) {
+        Log.i(TAG, "add user");
 
         SQLiteDatabase db = this.getWritableDatabase();
 
@@ -91,23 +91,23 @@ public class SqlHelper extends SQLiteOpenHelper {
         values.put(KEY_MAIL_USER, userAccount.getEmail());
         values.put(KEY_TOKEN_USER, userAccount.getId());
 
-        db.insert(TABLE_USER,null,values);
+        db.insert(TABLE_USER, null, values);
 
         Log.i("TAG", "new user added");
         db.close();
     }
 
-    public boolean isUserInDatabase(String userID){
+    public boolean isUserInDatabase(String userID) {
 
         Log.i(TAG, "Check if user already in database");
         SQLiteDatabase db = this.getWritableDatabase();
 
-        Cursor cursor = db.rawQuery("SELECT * FROM user_app WHERE token=?", new String[] {userID} );
+        Cursor cursor = db.rawQuery("SELECT * FROM user_app WHERE token=?", new String[]{userID});
         if (cursor.moveToFirst()) {
             Log.i("TAG", "User already in Database");
             db.close();
             return true;
-        }else {
+        } else {
             Log.i("TAG", "User not in Database");
             db.close();
             return false;
@@ -115,8 +115,8 @@ public class SqlHelper extends SQLiteOpenHelper {
 
     }
 
-    public void addBook(Article article,String userID){
-        Log.i(TAG,"add article: " + article.getTitle());
+    public void addBook(Article article, String userID) {
+        Log.i(TAG, "add article: " + article.getTitle());
 
         SQLiteDatabase db = this.getWritableDatabase();
 
@@ -132,23 +132,23 @@ public class SqlHelper extends SQLiteOpenHelper {
         values.put(KEY_PUBLISHED_TIME, article.getPublishedTime());
 
         ContentValues values_library = new ContentValues();
-        values_library.put(KEY_ARTICLE_TITLE,article.getTitle());
-        values_library.put(KEY_ID_USER,userID);
-        values_library.put(KEY_IS_READ,0);
+        values_library.put(KEY_ARTICLE_TITLE, article.getTitle());
+        values_library.put(KEY_ID_USER, userID);
+        values_library.put(KEY_IS_READ, 0);
         values_library.put(KEY_IS_FAVORITE, 0);
 
-        if(!articleAlreadyInDatabase(article)){
+        if (!articleAlreadyInDatabase(article)) {
             db.insert(TABLE_ARTICLE, null, values);
         }
 
-        db.insert(TABLE_LIBRARY,null,values_library);
+        db.insert(TABLE_LIBRARY, null, values_library);
 
-        Log.d("Book added: ",article.getTitle());
+        Log.d("Book added: ", article.getTitle());
         db.close();
     }
 
 
-    public ArrayList<Article> getReadArticles(String userID){
+    public ArrayList<Article> getReadArticles(String userID) {
 
         Log.i(TAG, "getReadBooks");
         SQLiteDatabase db = getWritableDatabase();
@@ -161,11 +161,11 @@ public class SqlHelper extends SQLiteOpenHelper {
                 KEY_ARTICLE_TITLE + "=" + TABLE_ARTICLE + "." + KEY_TITLE + " AND " + TABLE_LIBRARY + "." + KEY_IS_READ +
                 "=1";
 
-        Cursor cursor = db.rawQuery(query, new String[] {userID} );
+        Cursor cursor = db.rawQuery(query, new String[]{userID});
 
         Article article = null;
-        if (cursor.moveToFirst()){
-            do{
+        if (cursor.moveToFirst()) {
+            do {
                 article = new Article();
                 article.setAuthor(cursor.getString(0));
                 article.setTitle(cursor.getString(1));
@@ -175,16 +175,16 @@ public class SqlHelper extends SQLiteOpenHelper {
                 article.setPublishedTime(cursor.getString(5));
 
                 articles.add(article);
-            }while(cursor.moveToNext());
+            } while (cursor.moveToNext());
         }
         db.close();
         return articles;
 
     }
 
-    public ArrayList<Article> getFavoriteBooks(String userID){
+    public ArrayList<Article> getFavoriteArticles(String userID) {
 
-        Log.i(TAG, "getFavoriteBooks");
+        Log.i(TAG, "getFavoriteArticles");
         SQLiteDatabase db = getWritableDatabase();
         ArrayList<Article> articles = new ArrayList<>();
 
@@ -195,11 +195,11 @@ public class SqlHelper extends SQLiteOpenHelper {
                 KEY_ARTICLE_TITLE + "=" + TABLE_ARTICLE + "." + KEY_TITLE + " AND " + TABLE_LIBRARY + "." + KEY_IS_FAVORITE +
                 "=1";
 
-        Cursor cursor = db.rawQuery(query, new String[] {userID} );
+        Cursor cursor = db.rawQuery(query, new String[]{userID});
 
         Article article = null;
-        if (cursor.moveToFirst()){
-            do{
+        if (cursor.moveToFirst()) {
+            do {
                 article = new Article();
                 article.setAuthor(cursor.getString(0));
                 article.setTitle(cursor.getString(1));
@@ -209,23 +209,23 @@ public class SqlHelper extends SQLiteOpenHelper {
                 article.setPublishedTime(cursor.getString(5));
 
                 articles.add(article);
-            }while(cursor.moveToNext());
+            } while (cursor.moveToNext());
         }
         db.close();
         return articles;
 
     }
 
-    public void deleteArticle(Article article, String userID){
+    public void deleteArticle(Article article, String userID) {
 
         SQLiteDatabase db = getWritableDatabase();
 
         db.delete(TABLE_LIBRARY,
                 KEY_ARTICLE_TITLE + "=? AND " + KEY_ID_USER + "=?",
-                new String[] {article.getTitle(),userID});
+                new String[]{article.getTitle(), userID});
         db.delete(TABLE_ARTICLE,
                 KEY_TITLE + "=?",
-                new String[] {article.getTitle()});
+                new String[]{article.getTitle()});
         Log.i(TAG, "Delete successful");
         db.close();
     }
@@ -242,34 +242,34 @@ public class SqlHelper extends SQLiteOpenHelper {
 //
 //    }
 
-    public void updateIsReadColumn(Article article,String userID){
+    public void updateIsReadColumn(Article article, String userID) {
 
         SQLiteDatabase db = getWritableDatabase();
         String query = "UPDATE library SET is_read=" + (article.getIsRead() ? 1 : 0) + " WHERE title=?"
                 + " AND id_user=?";
-        db.execSQL(query,new String[]{ article.getTitle(), userID});
-        Log.d("UpdateReadColumn: ", "column updated with: " + (article.getIsRead() ? 1 : 0) );
+        db.execSQL(query, new String[]{article.getTitle(), userID});
+        Log.d("UpdateReadColumn: ", "column updated with: " + (article.getIsRead() ? 1 : 0));
         db.close();
     }
 
-    public void updateIsFavoriteColumn(Article article,String userID){
+    public void updateIsFavoriteColumn(Article article, String userID) {
 
         SQLiteDatabase db = getWritableDatabase();
         String query = "UPDATE library SET is_favorite=" + (article.getIsFavorite() ? 1 : 0) + " WHERE title=?"
                 + " AND id_user=?";
-        db.execSQL(query,new String[]{ article.getTitle(), userID});
-        Log.d("UpdateFavoriteColumn: ", "column updated with: " + (article.getIsFavorite() ? 1 : 0) );
+        db.execSQL(query, new String[]{article.getTitle(), userID});
+        Log.d("UpdateFavoriteColumn: ", "column updated with: " + (article.getIsFavorite() ? 1 : 0));
         db.close();
     }
 
-    public boolean bookAlreadyInLibrary(Article article, String userID){
+    public boolean articleAlreadyInLibrary(Article article, String userID) {
         SQLiteDatabase db = getWritableDatabase();
         String query = "SELECT * FROM library where title=? AND id_user=?";
-        Cursor cursor = db.rawQuery(query,new String[] {article.getTitle(),userID});
-        if (cursor.moveToFirst()){
+        Cursor cursor = db.rawQuery(query, new String[]{article.getTitle(), userID});
+        if (cursor.moveToFirst()) {
             db.close();
             return true;
-        }else{
+        } else {
             db.close();
             return false;
         }
@@ -277,111 +277,17 @@ public class SqlHelper extends SQLiteOpenHelper {
     }
 
 
-
-    private boolean articleAlreadyInDatabase(Article article){
+    private boolean articleAlreadyInDatabase(Article article) {
         SQLiteDatabase db = getWritableDatabase();
-        String query="SELECT * from "+ TABLE_ARTICLE + " WHERE title = ?";
-        Cursor cursor = db.rawQuery(query, new String[] {article.getTitle()});
+        String query = "SELECT * from " + TABLE_ARTICLE + " WHERE title = ?";
+        Cursor cursor = db.rawQuery(query, new String[]{article.getTitle()});
 
-        if(cursor.moveToFirst()){
+        if (cursor.moveToFirst()) {
             db.close();
             return true;
-        }else{
+        } else {
             db.close();
             return false;
         }
     }
-
-//    public ArrayList<article> findArticleInLibrary(String text, String userID){
-//        SQLiteDatabase db = getWritableDatabase();
-//        ArrayList<article> books = new ArrayList<>();
-//        SimpleDateFormat dateAddedFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-//        SimpleDateFormat getDateFormat = new SimpleDateFormat("MM-dd-yyyy");
-//
-//        String query = "SELECT book.isbn,book.title,book.author,book.official_rate," +
-//                "book.year,book.cover_url,book.description,book.date_added,book.categories," +
-//                "library.is_read,library.is_favorite,library.personal_rate,library.comment" +
-//                " FROM book,library WHERE library.id_user=? AND library.isbn_book=book.isbn AND " +
-//                "(book.title LIKE ? OR book.author LIKE ? ) ORDER BY book.date_added DESC";
-//        Cursor cursor = db.rawQuery(query,new String[]{userID,text + "%",text + "%"});
-//
-//        Log.d(TAG, "query: " + cursor.toString());
-//
-//        Book book = null;
-//        if (cursor.moveToFirst()){
-//            do{
-//                book = new Book();
-//                book.setIsbns(cursor.getString(0));
-//                book.setTitle(cursor.getString(1));
-//                book.setAuthors(cursor.getString(2));
-//                book.setRate(Float.parseFloat(cursor.getString(3)));
-//                book.setYear(cursor.getString(4));
-//                book.setUrlCover(cursor.getString(5));
-//                book.setDescription(cursor.getString(6));
-//
-//                try {
-//                    book.setDate_added(getDateFormat.format(dateAddedFormat.parse(cursor.getString(7))));
-//                } catch (ParseException e) {
-//                    e.printStackTrace();
-//                }
-//                book.setCategories(cursor.getString(8));
-//                book.setIsRead(Integer.parseInt(cursor.getString(9)) != 0);
-//                book.setIsFavorite(Integer.parseInt(cursor.getString(10)) != 0);
-//                book.setPersonalRate(Float.parseFloat(cursor.getString(11)));
-//                book.setComment(cursor.getString(12));
-//
-//                books.add(book);
-//            }while(cursor.moveToNext());
-//        }
-//
-//        return books;
-//
-//    }
-
-//    public ArrayList<Article> getAllBooks(String userID){
-//
-//        Log.i(TAG, "getAllBooks");
-//        SQLiteDatabase db = getWritableDatabase();
-//        ArrayList<Article> books = new ArrayList<>();
-//        SimpleDateFormat dateAddedFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-//        SimpleDateFormat getDateFormat = new SimpleDateFormat("MM-dd-yyyy");
-//
-//        String query = "SELECT book.isbn,book.title,book.author,book.official_rate," +
-//                "book.year,book.cover_url,book.description,book.date_added,book.categories," +
-//                "library.is_read,library.is_favorite,library.personal_rate,library.comment" +
-//                " FROM book,library WHERE library.id_user=? " +
-//                "AND library.isbn_book=book.isbn ORDER BY book.date_added DESC";
-//
-//        Cursor cursor = db.rawQuery(query, new String[] {userID} );
-//
-//        Book book = null;
-//        if (cursor.moveToFirst()){
-//            do{
-//                book = new Book();
-//                book.setIsbns(cursor.getString(0));
-//                book.setTitle(cursor.getString(1));
-//                book.setAuthors(cursor.getString(2));
-//                book.setRate(Float.parseFloat(cursor.getString(3)));
-//                book.setYear(cursor.getString(4));
-//                book.setUrlCover(cursor.getString(5));
-//                book.setDescription(cursor.getString(6));
-//
-//                try {
-//                    book.setDate_added(getDateFormat.format(dateAddedFormat.parse(cursor.getString(7))));
-//                } catch (ParseException e) {
-//                    e.printStackTrace();
-//                }
-//                book.setCategories(cursor.getString(8));
-//                book.setIsRead(Integer.parseInt(cursor.getString(9)) != 0);
-//                book.setIsFavorite(Integer.parseInt(cursor.getString(10)) != 0);
-//                book.setPersonalRate(Float.parseFloat(cursor.getString(11)));
-//                book.setComment(cursor.getString(12));
-//
-//                books.add(book);
-//            }while(cursor.moveToNext());
-//        }
-//
-//        return books;
-//
-//    }
 }
