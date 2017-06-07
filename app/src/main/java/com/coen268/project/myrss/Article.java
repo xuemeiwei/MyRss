@@ -26,8 +26,8 @@ public class Article implements Parcelable {
     private String publishedTime;
 
     private float personalRate;
-    private boolean is_read;
-    private boolean is_favorite;
+    private boolean isToRead;
+    private boolean isFavorite;
 
     public Article(String author, String title, String description, String url,
                    String imageLinks, String publishedTime){
@@ -40,14 +40,6 @@ public class Article implements Parcelable {
     }
     public Article(){
 
-    }
-    public boolean is_favorite() {
-        return is_favorite;
-    }
-
-    public boolean is_read() {
-
-        return is_read;
     }
 
     public String getPublishedTime() {
@@ -78,19 +70,19 @@ public class Article implements Parcelable {
         return description;
     }
 
-    public boolean getIsRead() {return is_read; }
-    public boolean getIsFavorite() {return is_favorite; }
+    public boolean getIsToRead() {return isToRead; }
+    public boolean getIsFavorite() {return isFavorite; }
 
     @Override
     public int describeContents() { return 0; }
 
-    public void setIs_favorite(boolean is_favorite) {
-        this.is_favorite = is_favorite;
+    public void setFavorite(boolean isFavorite) {
+        this.isFavorite = isFavorite;
     }
 
-    public void setIs_read(boolean is_read) {
+    public void setToRead(boolean isToRead) {
 
-        this.is_read = is_read;
+        this.isToRead = isToRead;
     }
 
     public void setPersonalRate(float personalRate) {
@@ -137,8 +129,8 @@ public class Article implements Parcelable {
         dest.writeString(url);
         dest.writeString(imageLinks);
         dest.writeString(publishedTime);
-        dest.writeByte((byte) (is_read ? 1 : 0));
-        dest.writeByte((byte) (is_favorite ? 1 : 0));
+        dest.writeByte((byte) (isToRead ? 1 : 0));
+        dest.writeByte((byte) (isFavorite ? 1 : 0));
     }
 
     public static final Creator<Article> CREATOR = new Creator<Article>() {
@@ -158,8 +150,8 @@ public class Article implements Parcelable {
         url = pc.readString();
         imageLinks = pc.readString();
         publishedTime = pc.readString();
-        is_read = pc.readByte() != 0;
-        is_favorite = pc.readByte() != 0;
+        isToRead = pc.readByte() != 0;
+        isFavorite = pc.readByte() != 0;
 
     }
 }

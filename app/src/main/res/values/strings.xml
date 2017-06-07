@@ -10,4 +10,11 @@
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="signout_message">Are you sure to sign out?</string>
+    <string name="ok">Yes</string>
+    <string name="cancel">cancel</string>
+    <string name="set_article">Choose Your action on selected article</string>
+    <string name="save_to_ToRead">ToRead</string>
+    <string name="save_to_Fav">Favorite</string>
+    <string name="deleteArticle">Are you sure to delete this article from ToRead list?</string>
 </resources>

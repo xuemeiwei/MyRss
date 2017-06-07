@@ -28,9 +28,9 @@ public class SqlHelper extends SQLiteOpenHelper {
     private static final String KEY_URL = "url";
     private static final String KEY_IMAGELINKS = "imageLinks";
     private static final String KEY_PUBLISHED_TIME = "publishedTime";
-    private static final String KEY_ARTICLE_TITLE = "tilte_article";
+    private static final String KEY_ARTICLE_TITLE = "title_article";
     private static final String KEY_ID_USER = "id_user";
-    private static final String KEY_IS_READ = "is_read";
+    private static final String KEY_IS_TOREAD = "is_toRead";
     private static final String KEY_IS_FAVORITE = "is_favorite";
 
     private static final String KEY_TOKEN_USER = "token";
@@ -55,15 +55,15 @@ public class SqlHelper extends SQLiteOpenHelper {
         String CREATE_LIBRARY_TABLE = "CREATE TABLE " + TABLE_LIBRARY + " ( " +
                 KEY_ARTICLE_TITLE + " TEXT PRIMARY KEY, " +
                 KEY_ID_USER + " TEXT, " +
-                KEY_IS_READ + " INTEGER, " +
+                KEY_IS_TOREAD + " INTEGER, " +
                 KEY_IS_FAVORITE + " INTEGER, " +
                 "FOREIGN KEY( " + KEY_ARTICLE_TITLE + " ) REFERENCES " + TABLE_ARTICLE + " ( " + KEY_TITLE + "), " +
                 "FOREIGN KEY( " + KEY_ID_USER + " ) REFERENCES " + TABLE_USER + " ( " + KEY_TOKEN_USER + "))";
 
         String CREATE_USER_TABLE = "CREATE TABLE " + TABLE_USER + " ( " +
-                "token TEXT PRIMARY KEY, " +
-                "name TEXT, " +
-                "mail TEXT)";
+                KEY_TOKEN_USER + " TEXT PRIMARY KEY, " +
+                KEY_NAME_USER + " TEXT, " +
+                KEY_MAIL_USER + " TEXT)";
 
         db.execSQL(CREATE_ARTICLE_TABLE);
         db.execSQL(CREATE_USER_TABLE);
@@ -97,25 +97,9 @@ public class SqlHelper extends SQLiteOpenHelper {
         db.close();
     }
 
-    public boolean isUserInDatabase(String userID) {
 
-        Log.i(TAG, "Check if user already in database");
-        SQLiteDatabase db = this.getWritableDatabase();
 
-        Cursor cursor = db.rawQuery("SELECT * FROM user_app WHERE token=?", new String[]{userID});
-        if (cursor.moveToFirst()) {
-            Log.i("TAG", "User already in Database");
-            db.close();
-            return true;
-        } else {
-            Log.i("TAG", "User not in Database");
-            db.close();
-            return false;
-        }
-
-    }
-
-    public void addBook(Article article, String userID) {
+    public void addArticle(Article article, String userID) {
         Log.i(TAG, "add article: " + article.getTitle());
 
         SQLiteDatabase db = this.getWritableDatabase();
@@ -134,31 +118,26 @@ public class SqlHelper extends SQLiteOpenHelper {
         ContentValues values_library = new ContentValues();
         values_library.put(KEY_ARTICLE_TITLE, article.getTitle());
         values_library.put(KEY_ID_USER, userID);
-        values_library.put(KEY_IS_READ, 0);
-        values_library.put(KEY_IS_FAVORITE, 0);
+        values_library.put(KEY_IS_TOREAD, article.getIsToRead() ? 1 : 0);
+        values_library.put(KEY_IS_FAVORITE, article.getIsFavorite() ? 1 : 0);
 
-        if (!articleAlreadyInDatabase(article)) {
-            db.insert(TABLE_ARTICLE, null, values);
-        }
-
+        db.insert(TABLE_ARTICLE, null, values);
         db.insert(TABLE_LIBRARY, null, values_library);
 
-        Log.d("Book added: ", article.getTitle());
+        Log.d("Article added: ", article.getTitle());
         db.close();
     }
 
-
-    public ArrayList<Article> getReadArticles(String userID) {
-
-        Log.i(TAG, "getReadBooks");
+    public ArrayList<Article> getToReadArticles(String userID) {
+        Log.i(TAG, "getReadArticles");
         SQLiteDatabase db = getWritableDatabase();
         ArrayList<Article> articles = new ArrayList<>();
 
         String query = "SELECT " + TABLE_ARTICLE + "." + KEY_AUTHOR + ", " + TABLE_ARTICLE + "." + KEY_TITLE + ", " +
                 TABLE_ARTICLE + "." + KEY_DESCRIPTION + ", " + TABLE_ARTICLE + "." + KEY_URL + "," +
-                TABLE_ARTICLE + "." + KEY_IMAGELINKS + "," + TABLE_ARTICLE + "." + KEY_PUBLISHED_TIME + " FROM " +
-                TABLE_ARTICLE + " WHERE " + TABLE_LIBRARY + "." + KEY_ID_USER + "=? AND " + TABLE_LIBRARY + "." +
-                KEY_ARTICLE_TITLE + "=" + TABLE_ARTICLE + "." + KEY_TITLE + " AND " + TABLE_LIBRARY + "." + KEY_IS_READ +
+                TABLE_ARTICLE + "." + KEY_IMAGELINKS + ", " + TABLE_ARTICLE + "." + KEY_PUBLISHED_TIME + " FROM " +
+                TABLE_ARTICLE + "," + TABLE_LIBRARY + " WHERE " + TABLE_LIBRARY + "." + KEY_ID_USER + "=? AND " + TABLE_LIBRARY + "." +
+                KEY_ARTICLE_TITLE + "=" + TABLE_ARTICLE + "." + KEY_TITLE + " AND " + TABLE_LIBRARY + "." + KEY_IS_TOREAD +
                 "=1";
 
         Cursor cursor = db.rawQuery(query, new String[]{userID});
@@ -183,7 +162,6 @@ public class SqlHelper extends SQLiteOpenHelper {
     }
 
     public ArrayList<Article> getFavoriteArticles(String userID) {
-
         Log.i(TAG, "getFavoriteArticles");
         SQLiteDatabase db = getWritableDatabase();
         ArrayList<Article> articles = new ArrayList<>();
@@ -191,7 +169,7 @@ public class SqlHelper extends SQLiteOpenHelper {
         String query = "SELECT " + TABLE_ARTICLE + "." + KEY_AUTHOR + ", " + TABLE_ARTICLE + "." + KEY_TITLE + ", " +
                 TABLE_ARTICLE + "." + KEY_DESCRIPTION + ", " + TABLE_ARTICLE + "." + KEY_URL + "," +
                 TABLE_ARTICLE + "." + KEY_IMAGELINKS + "," + TABLE_ARTICLE + "." + KEY_PUBLISHED_TIME + " FROM " +
-                TABLE_ARTICLE + " WHERE " + TABLE_LIBRARY + "." + KEY_ID_USER + "=? AND " + TABLE_LIBRARY + "." +
+                TABLE_ARTICLE + "," + TABLE_LIBRARY + " WHERE " + TABLE_LIBRARY + "." + KEY_ID_USER + "=?" + " AND " + TABLE_LIBRARY + "." +
                 KEY_ARTICLE_TITLE + "=" + TABLE_ARTICLE + "." + KEY_TITLE + " AND " + TABLE_LIBRARY + "." + KEY_IS_FAVORITE +
                 "=1";
 
@@ -207,7 +185,6 @@ public class SqlHelper extends SQLiteOpenHelper {
                 article.setUrl(cursor.getString(3));
                 article.setImageLinks(cursor.getString(4));
                 article.setPublishedTime(cursor.getString(5));
-
                 articles.add(article);
             } while (cursor.moveToNext());
         }
@@ -230,41 +207,45 @@ public class SqlHelper extends SQLiteOpenHelper {
         db.close();
     }
 
-//    public void updateArticle(Article article, String userID){
-//
-//        SQLiteDatabase db = getWritableDatabase();
-//
-//        String query = "UPDATE library set personal_rate=" + article.getPersonalRate() + ", comment=?" +
-//                " WHERE isbn_book=?" + " AND id_user=?";
-//
-//        db.execSQL(query,new String[] {article.getComment(),article.getISBN(),userID});
-//        Log.i(TAG, "Book updated");
-//
-//    }
-
-    public void updateIsReadColumn(Article article, String userID) {
+    public void updateIsToReadColumn(Article article, String userID) {
 
         SQLiteDatabase db = getWritableDatabase();
-        String query = "UPDATE library SET is_read=" + (article.getIsRead() ? 1 : 0) + " WHERE title=?"
-                + " AND id_user=?";
+        String query = "UPDATE " +  TABLE_LIBRARY + " SET " + KEY_IS_TOREAD + "=" + (article.getIsToRead() ? 1 : 0) + " WHERE "
+                        + KEY_ARTICLE_TITLE + "=?" + " AND " + KEY_ID_USER + "=?";
         db.execSQL(query, new String[]{article.getTitle(), userID});
-        Log.d("UpdateReadColumn: ", "column updated with: " + (article.getIsRead() ? 1 : 0));
+        Log.d("UpdateToReadColumn: ", "column updated with: " + (article.getIsToRead() ? 1 : 0));
         db.close();
     }
 
     public void updateIsFavoriteColumn(Article article, String userID) {
 
         SQLiteDatabase db = getWritableDatabase();
-        String query = "UPDATE library SET is_favorite=" + (article.getIsFavorite() ? 1 : 0) + " WHERE title=?"
-                + " AND id_user=?";
+        String query = "UPDATE " + TABLE_LIBRARY + " SET " + KEY_IS_FAVORITE + "=" + (article.getIsFavorite() ? 1 : 0) +
+                " WHERE " + KEY_ARTICLE_TITLE + "=?" + " AND " + KEY_ID_USER + "=?";
         db.execSQL(query, new String[]{article.getTitle(), userID});
         Log.d("UpdateFavoriteColumn: ", "column updated with: " + (article.getIsFavorite() ? 1 : 0));
         db.close();
     }
 
-    public boolean articleAlreadyInLibrary(Article article, String userID) {
+    public boolean isUserInDatabase(String userID) {
+        Log.i(TAG, "Check if user already in database");
+        SQLiteDatabase db = this.getWritableDatabase();
+        String query = "SELECT * FROM " + TABLE_USER + " WHERE " + KEY_TOKEN_USER + "=?";
+        Cursor cursor = db.rawQuery(query, new String[]{userID});
+        if (cursor.moveToFirst()) {
+            Log.i("TAG", "User already in Database");
+            db.close();
+            return true;
+        } else {
+            Log.i("TAG", "User not in Database");
+            db.close();
+            return false;
+        }
+    }
+
+    public boolean isArticleInLibrary(Article article, String userID) {
         SQLiteDatabase db = getWritableDatabase();
-        String query = "SELECT * FROM library where title=? AND id_user=?";
+        String query = "SELECT * FROM " + TABLE_LIBRARY + " WHERE " + KEY_ARTICLE_TITLE + "=?" + " AND " + KEY_ID_USER + "=?";
         Cursor cursor = db.rawQuery(query, new String[]{article.getTitle(), userID});
         if (cursor.moveToFirst()) {
             db.close();
@@ -273,13 +254,11 @@ public class SqlHelper extends SQLiteOpenHelper {
             db.close();
             return false;
         }
-
     }
 
-
-    private boolean articleAlreadyInDatabase(Article article) {
+    public boolean articleAlreadyInDatabase(Article article) {
         SQLiteDatabase db = getWritableDatabase();
-        String query = "SELECT * from " + TABLE_ARTICLE + " WHERE title = ?";
+        String query = "SELECT * from " + TABLE_ARTICLE + " WHERE " + KEY_TITLE + "=?" ;
         Cursor cursor = db.rawQuery(query, new String[]{article.getTitle()});
 
         if (cursor.moveToFirst()) {

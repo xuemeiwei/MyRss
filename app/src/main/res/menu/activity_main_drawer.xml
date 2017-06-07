@@ -3,9 +3,9 @@
 
     <group android:checkableBehavior="single">
         <item
-            android:id="@+id/lattest"
+            android:id="@+id/latest"
             android:icon="@drawable/ic_menu_slideshow"
-            android:title="Lattest" />
+            android:title="Latest" />
         <item
             android:id="@+id/toRead"
             android:icon="@drawable/ic_menu_gallery"

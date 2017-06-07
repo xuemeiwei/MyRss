@@ -134,9 +134,9 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
 
     private void updateUI(boolean signedIn) {
         if (signedIn) {
-            Intent goLibrary = new Intent(getApplicationContext(),MainActivity.class);
-            goLibrary.putExtra("user",acct);
-            startActivity(goLibrary);
+            Intent goToMain = new Intent(getApplicationContext(),MainActivity.class);
+            goToMain.putExtra("user",acct);
+            startActivity(goToMain);
             finish();
         }
     }

@@ -33,7 +33,9 @@ public class ArticleAdapter extends RecyclerView.Adapter<ArticleAdapter.ArticleR
         Article article = data.get(position);
         holder.title.setText("Title: " + article.getTitle());
         holder.author.setText("Author: " + article.getAuthor());
-        holder.date_added.setText("Published at: " + article.getPublishedTime());
+
+        holder.date_added.setText(formatTime(article.getPublishedTime()));
+        //holder.date_added.setText("Published at: " + article.getPublishedTime());
         Picasso.with(mContext).load(article.getImageLinks()).into(holder.cover);
     }
 
@@ -43,6 +45,24 @@ public class ArticleAdapter extends RecyclerView.Adapter<ArticleAdapter.ArticleR
     }
 
     public Article getItem(int position){ return data.get(position); }
+
+    public void setData(ArrayList<Article> articlesData){ data = articlesData; }
+
+    public interface onItemClickListener{
+        void onItemClick(View v, int position);
+    }
+
+    public interface onItemLongClickListener{
+        void onItemLongClick(View v, int position);
+    }
+
+    public void setOnItemLongClickListener(final onItemLongClickListener mItemLongClickListener){
+        this.itemLongClickListener = mItemLongClickListener;
+    }
+
+    public void setOnItemClickListener(final onItemClickListener mItemClickListener){
+        this.itemClickListener = mItemClickListener;
+    }
 
     public class ArticleRowHolder extends RecyclerView.ViewHolder implements AdapterView.OnClickListener,
             AdapterView.OnLongClickListener{
@@ -55,7 +75,6 @@ public class ArticleAdapter extends RecyclerView.Adapter<ArticleAdapter.ArticleR
         public ArticleRowHolder(View itemView) {
 
             super(itemView);
-
             cover = (ImageView) itemView.findViewById(R.id.cover);
             title = (TextView) itemView.findViewById(R.id.article_title);
             author = (TextView) itemView.findViewById(R.id.article_author);
@@ -79,23 +98,17 @@ public class ArticleAdapter extends RecyclerView.Adapter<ArticleAdapter.ArticleR
             return true;
         }
     }
-
-    public void setData(ArrayList<Article> articlesData){ data = articlesData; }
-
-    public interface onItemClickListener{
-        void onItemClick(View v, int position);
-    }
-
-    public interface onItemLongClickListener{
-        void onItemLongClick(View v, int position);
-    }
-
-    public void setOnItemLongClickListener(final onItemLongClickListener mItemLongClickListener){
-        this.itemLongClickListener = mItemLongClickListener;
-    }
-
-    public void setOnItemClickListener(final onItemClickListener mItemClickListener){
-        this.itemClickListener = mItemClickListener;
+    /*
+    this function is used to change time's format to 2017-05-28 17:00
+     */
+    private String formatTime(String time) {
+        String resultTime = "";
+        if (time != null && time.length() != 0) {
+            String[] dates = time.split("T");
+            dates[1] = dates[1].substring(0, 5);
+            resultTime = dates[0].trim() + " " + dates[1];
+        }
+        return resultTime;
     }
 
 }

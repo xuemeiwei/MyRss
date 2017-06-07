@@ -9,7 +9,7 @@
 
     <!-- Book and Library row layouts -->
     <dimen name="picture_width">100dp</dimen>
-    <dimen name="picture_height">180dp</dimen>
+    <dimen name="picture_height">80dp</dimen>
 
     <!-- Book Details layouts -->
     <dimen name="empty_view_text">32sp</dimen>
