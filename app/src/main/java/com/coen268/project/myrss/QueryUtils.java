@@ -172,4 +172,8 @@ public final class QueryUtils {
     }
 
 
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> origin/master
