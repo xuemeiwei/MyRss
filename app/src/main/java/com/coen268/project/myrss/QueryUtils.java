@@ -75,7 +75,7 @@ public final class QueryUtils {
         HttpURLConnection urlConnection = null;
         InputStream inputStream = null;
         try {
-            urlConnection = (HttpURLConnection)url.openConnection();
+            urlConnection = (HttpURLConnection) url.openConnection();
             urlConnection.setReadTimeout(10000 /* milliseconds */);
             urlConnection.setConnectTimeout(15000 /* millisecons */);
             urlConnection.setRequestMethod("GET");
@@ -170,10 +170,5 @@ public final class QueryUtils {
         // Return the list of articles
         return articles;
     }
-
-
-<<<<<<< HEAD
 }
-=======
-}
->>>>>>> origin/master
+

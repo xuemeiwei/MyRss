@@ -32,7 +32,7 @@ public class LatestFragment extends Fragment {
     private TextView emptyView;
     private ArticleAdapter articleAdapter;
     private Context context;
-    final String TAG = "LattestFragment";
+    final String TAG = "LatestFragment";
     private ArticleAsyncTask articleAsyncTask;
     private Article article;
     private SqlHelper database;
